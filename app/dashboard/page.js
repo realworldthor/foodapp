@@ -13,20 +13,27 @@ export default function DashboardPage() {
   const [restaurant, setRestaurant] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (status === 'unauthenticated') { router.push('/login'); return; }
-    if (status === 'authenticated' && session?.user?.role !== 'admin') { router.push('/'); return; }
-    if (status === 'authenticated') {
-      fetchOrders();
+useEffect(() => {
+  if (status === 'unauthenticated') { router.push('/login'); return; }
+  if (status === 'authenticated' && session?.user?.role !== 'admin') { router.push('/'); return; }
+  if (status === 'authenticated') {
+    fetchData();
 
-      // Auto refresh every 15 seconds
-      const interval = setInterval(() => {
-        fetchOrders();
-      }, 15000);
+    // SSE for live order updates only
+    const eventSource = new EventSource('/api/orders/stream');
 
-      return () => clearInterval(interval);
-    }
-  }, [status, session]);
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setOrders(data);
+    };
+
+    eventSource.onerror = () => {
+      eventSource.close();
+    };
+
+    return () => eventSource.close();
+  }
+}, [status, session]);
 
   async function fetchData() {
   setLoading(true);

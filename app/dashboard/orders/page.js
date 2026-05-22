@@ -31,19 +31,37 @@ export default function OrdersPage() {
   const [filter, setFilter] = useState('all');
   const [updating, setUpdating] = useState(null);
 
-  useEffect(() => {
-    if (status === 'unauthenticated') { router.push('/login'); return; }
-    if (status === 'authenticated' && session?.user?.role !== 'admin') { router.push('/'); return; }
-    if (status === 'authenticated') fetchOrders();
-  }, [status, session]);
+useEffect(() => {
+  if (status === 'unauthenticated') { router.push('/login'); return; }
+  if (status === 'authenticated' && session?.user?.role !== 'admin') { router.push('/'); return; }
+  if (status === 'authenticated') {
+    // Connect to SSE stream
+    const eventSource = new EventSource('/api/orders/stream');
 
-  async function fetchOrders() {
-    setLoading(true);
-    const res = await fetch('/api/orders');
-    const data = await res.json();
-    setOrders(Array.isArray(data) ? data : []);
-    setLoading(false);
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setOrders(data);
+      setLoading(false);
+    };
+
+    eventSource.onerror = () => {
+      // Fallback to regular fetch if SSE fails
+      fetchOrders();
+      eventSource.close();
+    };
+
+    // Cleanup on unmount
+    return () => eventSource.close();
   }
+}, [status, session]);
+
+async function fetchOrders() {
+  setLoading(true);
+  const res = await fetch('/api/orders');
+  const data = await res.json();
+  setOrders(Array.isArray(data) ? data : []);
+  setLoading(false);
+}
 
   async function updateStatus(orderId, newStatus) {
     setUpdating(orderId);
