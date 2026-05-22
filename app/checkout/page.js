@@ -14,6 +14,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [orderId, setOrderId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [form, setForm] = useState({
     name: session?.user?.name || '',
@@ -49,7 +50,9 @@ export default function CheckoutPage() {
         }),
       });
       if (res.ok) {
+        const data = await res.json();
         clearCart();
+        setOrderId(data.orderId);
         setStep(3);
       } else {
         const data = await res.json();
@@ -95,9 +98,23 @@ export default function CheckoutPage() {
             <span style={{ fontFamily: 'var(--font-heading)', fontSize: '14px', fontWeight: 700, color: 'var(--primary)' }}>⏱️ ~30 Minutes</span>
           </div>
         </div>
-        <Link href="/" className="btn-primary" style={{ padding: '14px 40px', fontSize: '15px', borderRadius: 'var(--radius-md)' }}>
-          Back to Home
-        </Link>
+
+        {/* BUTTONS */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+          {orderId && (
+            <Link href={`/order/${orderId}`} className="btn-primary" style={{ padding: '14px 40px', fontSize: '15px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+              🛵 Track My Order →
+            </Link>
+          )}
+          <Link href="/" style={{
+            padding: '14px 40px', fontSize: '14px',
+            borderRadius: 'var(--radius-md)', textAlign: 'center',
+            fontFamily: 'var(--font-body)', color: 'var(--text-muted)',
+            display: 'block',
+          }}>
+            Back to Home
+          </Link>
+        </div>
       </div>
     </main>
   );
