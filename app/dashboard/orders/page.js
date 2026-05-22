@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -30,6 +30,36 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [updating, setUpdating] = useState(null);
+  const prevOrderCount = useRef(0);
+
+function playNotificationSound() {
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+  oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+  oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+
+  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.4);
+
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + 0.4);
+}
+
+function showBrowserNotification(orderCount) {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('🍽️ New Order!', {
+      body: `You have a new order. Total orders: ${orderCount}`,
+      icon: '/favicon.ico',
+    });
+  }
+}
 
 useEffect(() => {
   if (status === 'unauthenticated') { router.push('/login'); return; }
@@ -40,6 +70,15 @@ useEffect(() => {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      const newPendingCount = data.filter(o => o.status === 'pending').length;
+
+      // Play sound only when new pending orders arrive
+      if (prevOrderCount.current > 0 && newPendingCount > prevOrderCount.current) {
+        playNotificationSound();
+        showBrowserNotification(newPendingCount);
+      }
+
+      prevOrderCount.current = newPendingCount;
       setOrders(data);
       setLoading(false);
     };
@@ -78,26 +117,44 @@ async function fetchOrders() {
 
   return (
     <main style={{ background: 'var(--bg-secondary)', minHeight: '100vh' }}>
-
-      {/* DASHBOARD NAVBAR */}
-      <nav style={{
-        background: 'var(--bg)', borderBottom: '1px solid var(--border)',
-        padding: '0 24px', height: '60px', display: 'flex',
-        alignItems: 'center', justifyContent: 'space-between',
-        position: 'sticky', top: 0, zIndex: 100,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <Link href="/dashboard" style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--text-muted)' }}>← Dashboard</Link>
-          <span style={{ fontFamily: 'var(--font-heading)', fontSize: '18px', fontWeight: 700, color: 'var(--primary)' }}>📦 Orders</span>
-        </div>
-        <button onClick={fetchOrders} style={{
-          fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--primary)',
-          background: 'var(--primary-light)', border: '1px solid var(--primary)',
-          borderRadius: 'var(--radius-md)', padding: '8px 16px', cursor: 'pointer',
-        }}>
-          🔄 Refresh
-        </button>
-      </nav>
+{/* PAGE HEADER */}
+<div style={{ padding: '24px 24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+  <div>
+    <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Manage</div>
+    <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '24px', fontWeight: 700, color: 'var(--text)' }}>All Orders</h1>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)', animation: 'pulse 2s infinite' }} />
+      <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-muted)' }}>Live — instant updates</span>
+    </div>
+    <button
+      onClick={() => {
+        if ('Notification' in window) {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              playNotificationSound();
+            }
+          });
+        }
+      }}
+      style={{
+        fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text-muted)',
+        background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-md)', padding: '8px 16px', cursor: 'pointer',
+      }}
+    >
+      🔔 Enable Alerts
+    </button>
+    <button onClick={fetchOrders} style={{
+      fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--primary)',
+      background: 'var(--primary-light)', border: '1px solid var(--primary)',
+      borderRadius: 'var(--radius-md)', padding: '8px 16px', cursor: 'pointer',
+    }}>
+      🔄 Refresh
+    </button>
+  </div>
+</div>
 
       <div style={{ padding: '24px' }}>
 

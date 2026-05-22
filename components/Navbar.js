@@ -53,35 +53,25 @@ export default function Navbar() {
           </Link>
 
           {session ? (
-            <>
-              {session.user.role === 'admin' && (
-                <Link href="/dashboard" style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '14px',
-                  color: 'var(--primary)',
-                  fontWeight: '600',
-                }}>
-                  Dashboard
-                </Link>
-              )}
-              <span style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '14px',
-                color: 'var(--text-muted)',
-              }}>
-                Hi, {session.user.name.split(' ')[0]}
-              </span>
-              <button onClick={() => signOut()} style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '14px',
-                color: 'var(--text-muted)',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-              }}>
-                Logout
-              </button>
-            </>
+  <>
+    {session.user.role === 'admin' && (
+      <Link href="/dashboard" style={{
+        fontFamily: 'var(--font-body)',
+        fontSize: '14px',
+        color: 'var(--primary)',
+        fontWeight: '600',
+      }}>
+        Dashboard
+      </Link>
+    )}
+    <Link href="/profile" style={{
+      fontFamily: 'var(--font-body)',
+      fontSize: '14px',
+      color: 'var(--text-muted)',
+    }}>
+      Hi, {session.user.name.split(' ')[0]} 👤
+    </Link>
+  </>
           ) : (
             <>
               <Link href="/login" style={{
@@ -133,20 +123,21 @@ export default function Navbar() {
       </nav>
 
       {/* BOTTOM NAVBAR — mobile */}
-      <div style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: 'var(--navbar-bg)',
-        borderTop: '1px solid var(--navbar-border)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        height: '60px',
-        zIndex: 100,
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.06)',
-      }}>
+     {/* BOTTOM NAVBAR — mobile only */}
+          <div className="bottom-nav" style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            background: 'var(--navbar-bg)',
+            borderTop: '1px solid var(--navbar-border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+            height: '60px',
+            zIndex: 100,
+            boxShadow: '0 -2px 10px rgba(0,0,0,0.06)',
+          }}>
         {[
           { href: '/', icon: '🏠', label: 'Home' },
           { href: '/menu', icon: '🍽️', label: 'Menu' },

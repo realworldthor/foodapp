@@ -332,3 +332,14 @@ a {
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* Hide bottom navbar on desktop */
+@media (min-width: 768px) {
+  .bottom-nav {
+    display: none !important;
+  }
+
+  .bottom-nav-spacer {
+    display: none;
+  }
+}
