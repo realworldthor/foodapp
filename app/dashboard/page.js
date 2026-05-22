@@ -29,22 +29,29 @@ export default function DashboardPage() {
   }, [status, session]);
 
   async function fetchData() {
-    setLoading(true);
-    const [ordersRes, menuRes, restaurantRes] = await Promise.all([
-      fetch('/api/orders'),
-      fetch('/api/menu'),
-      fetch('/api/restaurant'),
-    ]);
-    const [ordersData, menuData, restaurantData] = await Promise.all([
-      ordersRes.json(),
-      menuRes.json(),
-      restaurantRes.json(),
-    ]);
-    setOrders(Array.isArray(ordersData) ? ordersData : []);
-    setMenuItems(Array.isArray(menuData) ? menuData : []);
-    setRestaurant(restaurantData);
-    setLoading(false);
-  }
+  setLoading(true);
+
+  const [ordersRes, menuRes, restaurantRes] = await Promise.all([
+    fetch('/api/orders'),
+    fetch('/api/menu'),
+    fetch('/api/restaurant'),
+  ]);
+
+  const [ordersData, menuData, restaurantData] = await Promise.all([
+    ordersRes.json(),
+    menuRes.json(),
+    restaurantRes.json(),
+  ]);
+
+  setOrders(Array.isArray(ordersData) ? ordersData : []);
+  setMenuItems(Array.isArray(menuData) ? menuData : []);
+  setRestaurant(restaurantData);
+  setLoading(false);
+}
+
+async function fetchOrders() {
+  await fetchData();
+}
 
   const totalRevenue = orders.filter(o => o.status === 'delivered').reduce((acc, o) => acc + o.total, 0);
   const pendingOrders = orders.filter(o => o.status === 'pending').length;
