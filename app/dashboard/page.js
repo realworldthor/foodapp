@@ -16,7 +16,16 @@ export default function DashboardPage() {
   useEffect(() => {
     if (status === 'unauthenticated') { router.push('/login'); return; }
     if (status === 'authenticated' && session?.user?.role !== 'admin') { router.push('/'); return; }
-    if (status === 'authenticated') fetchData();
+    if (status === 'authenticated') {
+      fetchOrders();
+
+      // Auto refresh every 15 seconds
+      const interval = setInterval(() => {
+        fetchOrders();
+      }, 15000);
+
+      return () => clearInterval(interval);
+    }
   }, [status, session]);
 
   async function fetchData() {
