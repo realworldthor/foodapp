@@ -55,8 +55,6 @@ export default function ProfilePage() {
 
   async function handleSave() {
     setSaving(true);
-    // In a real app you'd call a /api/users/update endpoint
-    // For now we just show success
     await new Promise(r => setTimeout(r, 800));
     setSaving(false);
     setEditing(false);
@@ -189,6 +187,9 @@ export default function ProfilePage() {
             <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 600, color: 'var(--text)' }}>
               📦 Order History
             </h2>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+              Tap any order to track or view details
+            </p>
           </div>
 
           {loading && (
@@ -210,19 +211,33 @@ export default function ProfilePage() {
           )}
 
           {!loading && orders.length > 0 && (
-            <div>
-              {orders.map((order, i) => (
-                <div key={order._id} style={{
-                  padding: '16px 20px',
-                  borderBottom: i < orders.length - 1 ? '1px solid var(--border)' : 'none',
+            <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {orders.map((order) => (
+                <Link key={order._id} href={`/order/${order._id}`} style={{
+                  display: 'block',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border)',
+                  overflow: 'hidden',
+                  textDecoration: 'none',
+                  boxShadow: 'var(--shadow-sm)',
+                  background: 'var(--bg)',
+                  transition: 'box-shadow 0.2s',
                 }}>
+
                   {/* ORDER HEADER */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                  <div style={{
+                    padding: '12px 16px',
+                    background: 'var(--bg-secondary)',
+                    borderBottom: '1px solid var(--border)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}>
                     <div>
                       <div style={{ fontFamily: 'var(--font-heading)', fontSize: '14px', fontWeight: 600, color: 'var(--text)', marginBottom: '2px' }}>
                         {order.items?.length} item{order.items?.length > 1 ? 's' : ''}
                       </div>
-                      <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-muted)' }}>
+                      <div style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--text-muted)' }}>
                         {new Date(order.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
@@ -243,7 +258,7 @@ export default function ProfilePage() {
                   </div>
 
                   {/* ORDER ITEMS */}
-                  <div style={{ background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', padding: '10px 14px' }}>
+                  <div style={{ padding: '12px 16px' }}>
                     {order.items?.map((item, j) => (
                       <div key={j} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: j < order.items.length - 1 ? '4px' : 0 }}>
                         <span style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text-muted)' }}>
@@ -256,17 +271,22 @@ export default function ProfilePage() {
                     ))}
                   </div>
 
-                  {/* REORDER BUTTON */}
-                  {order.status === 'delivered' && (
-                    <Link href="/menu" style={{
-                      display: 'inline-block', marginTop: '10px',
-                      fontFamily: 'var(--font-body)', fontSize: '13px',
-                      color: 'var(--primary)', fontWeight: '600',
-                    }}>
-                      🔄 Reorder
-                    </Link>
-                  )}
-                </div>
+                  {/* TAP TO TRACK */}
+                  <div style={{
+                    padding: '10px 16px',
+                    background: 'var(--primary-light)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    borderTop: '1px solid var(--border)',
+                  }}>
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--primary)', fontWeight: '600' }}>
+                      {order.status === 'delivered' ? '✅ View Order Details' : order.status === 'cancelled' ? '❌ Order Cancelled' : '🛵 Track This Order'}
+                    </span>
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--primary)' }}>→</span>
+                  </div>
+
+                </Link>
               ))}
             </div>
           )}

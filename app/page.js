@@ -213,17 +213,18 @@ export default function HomePage() {
 
         <div style={{ display: 'grid', gap: '12px' }} className="food-grid">
           {featuredItems.map(item => (
-            <div key={item._id} style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-md)',
-            padding: '12px',
-            display: 'flex',
-            flexDirection: 'column',
-            boxShadow: 'var(--shadow-sm)',
-            minWidth: 0,
-            overflow: 'hidden',
-          }}>
+            <Link href={`/menu/${item._id}`} key={item._id} style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)',
+              padding: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: 'var(--shadow-sm)',
+              minWidth: 0,
+              overflow: 'hidden',
+              textDecoration: 'none',
+            }}>
               {/* IMAGE */}
               <div style={{
                 width: '100%',
@@ -298,7 +299,7 @@ export default function HomePage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
