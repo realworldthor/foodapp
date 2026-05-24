@@ -37,87 +37,18 @@ export default function HomePage() {
   return (
     <main style={{ background: 'var(--bg)', minHeight: '100vh', paddingBottom: '80px' }}>
 
-      {/* HERO */}
-      <section style={{
-        background: 'var(--primary)',
-        padding: '32px 24px 40px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        <div style={{ position: 'relative', zIndex: 2 }}>
-          <div style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '13px',
-            color: 'var(--primary-text)',
-            opacity: 0.85,
-            marginBottom: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-          }}>
-            📍 Delivering to Lucknow
-          </div>
-          <h1 style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: '28px',
-            fontWeight: 700,
-            color: 'var(--primary-text)',
-            marginBottom: '8px',
-            lineHeight: 1.2,
-          }}>
-            {restaurant?.name || 'Welcome!'} 🍽️
-          </h1>
-          <p style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '14px',
-            color: 'var(--primary-text)',
-            opacity: 0.85,
-            marginBottom: '20px',
-            lineHeight: 1.5,
-          }}>
-            {restaurant?.description || 'Fresh food delivered fast.'}
-          </p>
-
-          {/* STATS ROW */}
-          <div style={{ display: 'flex', gap: '16px' }}>
-            {[
-              { icon: '⏱️', label: restaurant?.deliveryTime || '30 mins' },
-              { icon: '⭐', label: '4.8 Rating' },
-              { icon: '🛵', label: 'Free Delivery' },
-            ].map(stat => (
-              <div key={stat.label} style={{
-                background: 'rgba(255,255,255,0.2)',
-                borderRadius: 'var(--radius-md)',
-                padding: '8px 12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}>
-                <span style={{ fontSize: '14px' }}>{stat.icon}</span>
-                <span style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '12px',
-                  color: 'var(--primary-text)',
-                  fontWeight: '600',
-                }}>
-                  {stat.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* DECORATIVE CIRCLE */}
-        <div style={{
-          position: 'absolute',
-          right: '-40px',
-          top: '-40px',
-          width: '200px',
-          height: '200px',
-          borderRadius: '50%',
-          background: 'rgba(255,255,255,0.1)',
-        }} />
-      </section>
+      {/* BANNER IMAGE */}
+<div style={{ width: '100%' }}>
+  <img
+    src="/banner.png"
+    alt="Banner"
+    style={{
+      width: '100%',
+      height: 'auto',
+      display: 'block',
+    }}
+  />
+</div>
 
       {/* SEARCH BAR */}
       <div style={{ padding: '16px 24px', background: 'var(--bg)' }}>
@@ -228,7 +159,7 @@ export default function HomePage() {
               {/* IMAGE */}
               <div style={{
                 width: '100%',
-                height: '120px',
+                aspectRatio: '1/1',
                 borderRadius: 'var(--radius-md)',
                 background: 'var(--bg-secondary)',
                 overflow: 'hidden',
