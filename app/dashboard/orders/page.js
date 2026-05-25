@@ -198,10 +198,10 @@ async function fetchOrders() {
         {!loading && filtered.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {filtered.map(order => (
-              <div key={order._id} style={{
+              <div key={order._id} onClick={() => router.push(`/dashboard/orders/${order._id}`)} style={{
                 background: 'var(--bg-card)', border: '1px solid var(--border)',
                 borderRadius: 'var(--radius-md)', overflow: 'hidden',
-                boxShadow: 'var(--shadow-sm)',
+                boxShadow: 'var(--shadow-sm)', cursor: 'pointer',
               }}>
                 {/* ORDER HEADER */}
                 <div style={{
