@@ -37,15 +37,30 @@ export default function HomePage() {
   return (
     <main style={{ background: 'var(--bg)', minHeight: '100vh', paddingBottom: '80px' }}>
 
-      {/* BANNER IMAGE */}
-<div style={{ width: '100%' }}>
+{/* BANNER IMAGE */}
+<div style={{ width: '100%', overflow: 'hidden' }}>
+  {/* MOBILE */}
   <img
     src="/banner.png"
     alt="Banner"
+    className="banner-mobile"
+    style={{
+      width: '100%',
+      height: '200px',
+      objectFit: 'cover',
+      display: 'block',
+    }}
+  />
+  {/* DESKTOP */}
+  <img
+    src="/banner-desktop.jpeg"
+    alt="Banner"
+    className="banner-desktop"
     style={{
       width: '100%',
       height: 'auto',
-      display: 'block',
+      objectFit: 'cover',
+      display: 'none',
     }}
   />
 </div>

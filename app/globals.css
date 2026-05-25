@@ -344,3 +344,12 @@ a {
   }
 }
 
+/* BANNER — show different image on mobile vs desktop */
+@media (min-width: 768px) {
+  .banner-mobile {
+    display: none !important;
+  }
+  .banner-desktop {
+    display: block !important;
+  }
+}

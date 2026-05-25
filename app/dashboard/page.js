@@ -187,26 +187,33 @@ async function fetchOrders() {
 
           {/* STATS */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-            {[
-              { label: 'Total Revenue', value: `₹${totalRevenue}`, icon: '💰', change: 'All time' },
-              { label: 'Today\'s Orders', value: todayOrders, icon: '📦', change: 'Today' },
-              { label: 'Pending Orders', value: pendingOrders, icon: '⏳', change: 'Need action' },
-              { label: 'Menu Items', value: menuItems.length, icon: '🍽️', change: 'Total items' },
+           {[
+              { label: 'Total Revenue', value: `₹${totalRevenue}`, icon: '💰', change: 'All time', href: '/dashboard/reports/revenue' },
+              { label: 'Today\'s Orders', value: todayOrders, icon: '📦', change: 'Today', href: '/dashboard/reports/today' },
+              { label: 'Pending Orders', value: pendingOrders, icon: '⏳', change: 'Need action', href: '/dashboard/orders?status=pending' },
+              { label: 'Menu Items', value: menuItems.length, icon: '🍽️', change: 'Total items', href: '/dashboard/menu' },
             ].map(stat => (
-              <div key={stat.label} style={{
+              <Link key={stat.label} href={stat.href} style={{
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border)',
                 borderRadius: 'var(--radius-md)',
                 padding: '20px',
                 boxShadow: 'var(--shadow-sm)',
-              }}>
+                textDecoration: 'none',
+                display: 'block',
+                transition: 'box-shadow 0.2s, border-color 0.2s',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--shadow-md)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
+              >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                   <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text-muted)' }}>{stat.label}</div>
                   <span style={{ fontSize: '24px' }}>{stat.icon}</span>
                 </div>
                 <div style={{ fontFamily: 'var(--font-heading)', fontSize: '28px', fontWeight: 700, color: 'var(--text)', marginBottom: '4px' }}>{stat.value}</div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-dim)' }}>{stat.change}</div>
-              </div>
+               <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-dim)' }}>{stat.change}</div>
+                <div style={{ marginTop: '12px', fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--primary)', fontWeight: '600' }}>View details →</div>
+              </Link>
             ))}
           </div>
 
