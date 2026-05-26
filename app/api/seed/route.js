@@ -50,6 +50,14 @@ const menuItems = [
 ];
 
 export async function GET() {
+  // DISABLE IN PRODUCTION
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { error: 'Seed disabled in production' },
+      { status: 403 }
+    );
+  }
+
   try {
     await connectDB();
 
