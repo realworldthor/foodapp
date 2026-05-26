@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession} from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
@@ -87,97 +87,7 @@ async function fetchOrders() {
   );
 
   return (
-    <main style={{ background: 'var(--bg-secondary)', minHeight: '100vh' }}>
-
-      {/* DASHBOARD NAVBAR */}
-      <nav style={{
-        background: 'var(--bg)',
-        borderBottom: '1px solid var(--border)',
-        padding: '0 24px',
-        height: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ fontFamily: 'var(--font-heading)', fontSize: '18px', fontWeight: 700, color: 'var(--primary)' }}>
-            🍽️ Admin
-          </span>
-          <span style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text-muted)' }}>
-            {restaurant?.name}
-          </span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <Link href="/" style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text-muted)' }}>
-            View Site ↗
-          </Link>
-          <button onClick={() => signOut()} style={{
-            fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--error)',
-            background: 'transparent', border: 'none', cursor: 'pointer',
-          }}>
-            Logout
-          </button>
-        </div>
-      </nav>
-
-      {/* SIDEBAR + CONTENT */}
-      <div style={{ display: 'flex', minHeight: 'calc(100vh - 60px)' }}>
-
-        {/* SIDEBAR */}
-        <aside style={{
-          width: '220px',
-          flexShrink: 0,
-          background: 'var(--bg)',
-          borderRight: '1px solid var(--border)',
-          padding: '24px 0',
-        }}>
-          {[
-            { href: '/dashboard', icon: '▦', label: 'Overview', active: true },
-            { href: '/dashboard/orders', icon: '📦', label: 'Orders', badge: pendingOrders },
-            { href: '/dashboard/menu', icon: '🍽️', label: 'Menu Items' },
-            { href: '/dashboard/settings', icon: '⚙️', label: 'Settings' },
-          ].map(item => (
-            <Link key={item.href} href={item.href} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '12px 20px',
-              fontFamily: 'var(--font-body)',
-              fontSize: '14px',
-              color: item.active ? 'var(--primary)' : 'var(--text-muted)',
-              fontWeight: item.active ? '600' : '400',
-              background: item.active ? 'var(--primary-light)' : 'transparent',
-              borderLeft: item.active ? '3px solid var(--primary)' : '3px solid transparent',
-              transition: 'all 0.2s',
-            }}>
-              <span style={{ fontSize: '16px' }}>{item.icon}</span>
-              {item.label}
-              {item.badge > 0 && (
-                <span style={{
-                  marginLeft: 'auto',
-                  background: 'var(--error)',
-                  color: 'white',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  borderRadius: '50%',
-                  width: '20px',
-                  height: '20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  {item.badge}
-                </span>
-              )}
-            </Link>
-          ))}
-        </aside>
-
-        {/* MAIN CONTENT */}
-        <div style={{ flex: 1, padding: '24px', overflow: 'auto' }}>
+            <main style={{ background: 'var(--bg-secondary)', minHeight: '100vh', padding: '24px' }}>
 
           {/* PAGE TITLE */}
           <div style={{ marginBottom: '24px' }}>
@@ -186,8 +96,7 @@ async function fetchOrders() {
           </div>
 
           {/* STATS */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-           {[
+            <div className="dashboard-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>           {[
               { label: 'Total Revenue', value: `₹${totalRevenue}`, icon: '💰', change: 'All time', href: '/dashboard/reports/revenue' },
               { label: 'Today\'s Orders', value: todayOrders, icon: '📦', change: 'Today', href: '/dashboard/reports/today' },
               { label: 'Pending Orders', value: pendingOrders, icon: '⏳', change: 'Need action', href: '/dashboard/orders?status=pending' },
@@ -218,8 +127,7 @@ async function fetchOrders() {
           </div>
 
           {/* TWO COLS */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '16px' }}>
-
+          <div className="dashboard-two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '16px' }}>
             {/* RECENT ORDERS */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
               <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -316,8 +224,6 @@ async function fetchOrders() {
 
             </div>
           </div>
-        </div>
-      </div>
     </main>
   );
 }
