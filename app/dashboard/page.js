@@ -135,14 +135,19 @@ async function fetchOrders() {
                 <Link href="/dashboard/orders" style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--primary)', fontWeight: '600' }}>View all →</Link>
               </div>
               <div>
-                {orders.slice(0, 6).map((order, i) => (
-                  <div key={order._id} style={{
+               {orders.slice(0, 6).map((order, i) => (
+                  <Link key={order._id} href={`/dashboard/orders/${order._id}`} style={{
                     padding: '14px 20px',
                     borderBottom: i < 5 ? '1px solid var(--border)' : 'none',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                  }}>
+                    textDecoration: 'none',
+                    transition: 'background 0.2s',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-secondary)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
                     <div>
                       <div style={{ fontFamily: 'var(--font-heading)', fontSize: '13px', fontWeight: 600, color: 'var(--text)', marginBottom: '2px' }}>
                         {order.address?.name || 'Customer'}
@@ -151,16 +156,45 @@ async function fetchOrders() {
                         {order.items?.length} item{order.items?.length > 1 ? 's' : ''} · ₹{order.total}
                       </div>
                     </div>
-                    <span style={{
-                      fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600,
-                      padding: '4px 10px', borderRadius: 'var(--radius-full)',
-                      background: `${statusColor[order.status]}20`,
-                      color: statusColor[order.status],
-                      textTransform: 'capitalize',
-                    }}>
-                      {order.status}
-                    </span>
-                  </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {order.status === 'pending' && (
+                        <button
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            await fetch(`/api/orders/${order._id}`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ status: 'accepted' }),
+                            });
+                            fetchData();
+                          }}
+                          style={{
+                            padding: '5px 12px',
+                            background: 'var(--success)',
+                            border: 'none',
+                            borderRadius: 'var(--radius-sm)',
+                            color: '#fff',
+                            fontFamily: 'var(--font-body)',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Accept
+                        </button>
+                      )}
+                      <span style={{
+                        fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600,
+                        padding: '4px 10px', borderRadius: 'var(--radius-full)',
+                        background: `${statusColor[order.status]}20`,
+                        color: statusColor[order.status],
+                        textTransform: 'capitalize',
+                      }}>
+                        {order.status}
+                      </span>
+                    </div>
+                  </Link>
                 ))}
                 {orders.length === 0 && (
                   <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--text-muted)' }}>
