@@ -248,9 +248,10 @@ export default function DashboardMenuPage() {
                             const url = await uploadToCloudinary(file);
                             setForm(prev => ({ ...prev, image: url }));
                             showToast('Photo uploaded successfully!');
-                          } catch (err) {
-                            showToast('Upload failed. Please try again.');
-                          }
+                         } catch (err) {
+                              console.error('Upload error:', err);
+                              showToast(`Upload failed: ${err.message}`);
+                            }
                           setUploading(false);
                         }}
                       />
