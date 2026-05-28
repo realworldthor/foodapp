@@ -24,6 +24,7 @@ export default function DashboardMenuPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(null);
   const [toast, setToast] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [filterCategory, setFilterCategory] = useState('All');
 
   useEffect(() => {
@@ -181,11 +182,97 @@ export default function DashboardMenuPage() {
                 <input value={form.preparationTime} onChange={e => setForm({ ...form, preparationTime: e.target.value })} placeholder="20 mins" className="input" />
               </div>
 
-              {/* IMAGE URL */}
-              <div style={{ gridColumn: '1 / -1' }}>
-                <label style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Image URL</label>
-                <input value={form.image} onChange={e => setForm({ ...form, image: e.target.value })} placeholder="https://images.unsplash.com/..." className="input" />
-              </div>
+              {/* IMAGE UPLOAD */}
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    Food Photo
+                  </label>
+
+                  {/* PREVIEW */}
+                  {form.image && (
+                    <div style={{ marginBottom: '10px', position: 'relative', display: 'inline-block' }}>
+                      <img
+                        src={form.image}
+                        alt="Preview"
+                        style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', display: 'block' }}
+                      />
+                      <button
+                        onClick={() => setForm({ ...form, image: '' })}
+                        style={{
+                          position: 'absolute', top: '-8px', right: '-8px',
+                          width: '22px', height: '22px', borderRadius: '50%',
+                          background: 'var(--error)', border: 'none',
+                          color: '#fff', fontSize: '12px', cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontWeight: 700,
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+
+                  {/* UPLOAD BUTTON */}
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <label style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '8px',
+                      padding: '10px 20px', borderRadius: 'var(--radius-md)',
+                      background: uploading ? 'var(--border)' : 'var(--primary)',
+                      color: uploading ? 'var(--text-muted)' : 'var(--primary-text)',
+                      fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: '600',
+                      cursor: uploading ? 'not-allowed' : 'pointer',
+                      transition: 'opacity 0.2s',
+                    }}>
+                      <span className="material-icons" style={{ fontSize: '18px' }}>
+                        {uploading ? 'hourglass_empty' : 'upload'}
+                      </span>
+                      {uploading ? 'Uploading...' : 'Upload Photo'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        disabled={uploading}
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+
+                          // Check file size — max 5MB
+                          if (file.size > 5 * 1024 * 1024) {
+                            showToast('Image too large. Max 5MB allowed.');
+                            return;
+                          }
+
+                          setUploading(true);
+                          try {
+                            const { uploadToCloudinary } = await import('@/lib/cloudinary');
+                            const url = await uploadToCloudinary(file);
+                            setForm(prev => ({ ...prev, image: url }));
+                            showToast('Photo uploaded successfully!');
+                          } catch (err) {
+                            showToast('Upload failed. Please try again.');
+                          }
+                          setUploading(false);
+                        }}
+                      />
+                    </label>
+
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-muted)' }}>
+                      or
+                    </span>
+
+                    <input
+                      value={form.image}
+                      onChange={e => setForm({ ...form, image: e.target.value })}
+                      placeholder="Paste image URL..."
+                      className="input"
+                      style={{ flex: 1, minWidth: '200px' }}
+                    />
+                  </div>
+
+                  <div style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--text-dim)', marginTop: '6px' }}>
+                    JPG, PNG or WEBP — Max 5MB
+                  </div>
+                </div>
 
               {/* TOGGLES */}
               <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '24px' }}>
