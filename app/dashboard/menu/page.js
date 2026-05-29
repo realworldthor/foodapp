@@ -26,6 +26,7 @@ export default function DashboardMenuPage() {
   const [toast, setToast] = useState('');
   const [uploading, setUploading] = useState(false);
   const [filterCategory, setFilterCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (status === 'unauthenticated') { router.push('/login'); return; }
@@ -102,7 +103,19 @@ export default function DashboardMenuPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  const filtered = filterCategory === 'All' ? items : items.filter(i => i.category === filterCategory);
+  async function handleToggleAvailability(id, currentStatus) {
+  await fetch(`/api/menu/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ isAvailable: !currentStatus }),
+  });
+  showToast(currentStatus ? 'Item marked unavailable' : 'Item marked available');
+  fetchItems();
+}
+
+  const filtered = items
+  .filter(i => filterCategory === 'All' || i.category === filterCategory)
+  .filter(i => i.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <main style={{ background: 'var(--bg-secondary)', minHeight: '100vh' }}>
@@ -313,6 +326,16 @@ export default function DashboardMenuPage() {
             </div>
           </div>
         )}
+          {/* SEARCH BAR */}
+          <div style={{ marginBottom: '16px' }}>
+            <input
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search menu items..."
+              className="input"
+              style={{ maxWidth: '320px' }}
+            />
+          </div>
 
         {/* CATEGORY FILTER */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
@@ -358,102 +381,109 @@ export default function DashboardMenuPage() {
           </div>
         )}
 
-        {/* ITEMS TABLE */}
+        {/* ITEMS CARDS */}
         {!loading && (
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)' }}>
-                  {['Item', 'Category', 'Price', 'Status', 'Actions'].map(h => (
-                    <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((item, i) => (
-                  <tr key={item._id} style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+            gap: '16px',
+          }}>
+            {filtered.map(item => (
+              <div key={item._id} style={{
+                background: 'var(--bg-card)', border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-md)', overflow: 'hidden',
+                boxShadow: 'var(--shadow-sm)', display: 'flex', flexDirection: 'column',
+              }}>
 
-                    {/* ITEM */}
-                    <td style={{ padding: '14px 16px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ width: '44px', height: '44px', borderRadius: 'var(--radius-sm)', background: 'var(--bg-secondary)', overflow: 'hidden', flexShrink: 0 }}>
-                          {item.image
-                            ? <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>🍽️</div>
-                          }
-                        </div>
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                            <div className={item.isVeg ? 'badge-veg' : 'badge-nonveg'} />
-                            <span style={{ fontFamily: 'var(--font-heading)', fontSize: '14px', fontWeight: 600, color: 'var(--text)' }}>{item.name}</span>
-                          </div>
-                          <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-muted)' }}>⏱️ {item.preparationTime}</span>
-                        </div>
-                      </div>
-                    </td>
+                {/* TOP ROW — image + details */}
+                <div style={{ display: 'flex', gap: '12px', padding: '14px' }}>
 
-                    {/* CATEGORY */}
-                    <td style={{ padding: '14px 16px' }}>
-                      <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--primary)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.category}</span>
-                    </td>
+                  {/* IMAGE */}
+                  <div style={{ width: '90px', height: '90px', borderRadius: 'var(--radius-md)', overflow: 'hidden', flexShrink: 0, background: 'var(--bg-secondary)' }}>
+                    {item.image
+                      ? <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>🍽️</div>
+                    }
+                  </div>
 
-                    {/* PRICE */}
-                    <td style={{ padding: '14px 16px' }}>
-                      <span style={{ fontFamily: 'var(--font-heading)', fontSize: '14px', fontWeight: 700, color: 'var(--text)' }}>₹{item.price}</span>
-                      {item.originalPrice && <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-dim)', textDecoration: 'line-through', marginLeft: '6px' }}>₹{item.originalPrice}</span>}
-                    </td>
-
-                    {/* STATUS */}
-                    <td style={{ padding: '14px 16px' }}>
+                  {/* DETAILS */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                      <div className={item.isVeg ? 'badge-veg' : 'badge-nonveg'} />
+                      <span style={{ fontFamily: 'var(--font-heading)', fontSize: '15px', fontWeight: 700, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
+                    </div>
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--primary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.category}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+                      <span style={{ fontFamily: 'var(--font-heading)', fontSize: '15px', fontWeight: 700, color: 'var(--text)' }}>₹{item.price}</span>
+                      {item.originalPrice && <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-dim)', textDecoration: 'line-through' }}>₹{item.originalPrice}</span>}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
+                      <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-muted)' }}>⏱️ {item.preparationTime}</span>
                       <span style={{
                         fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600,
-                        padding: '4px 10px', borderRadius: 'var(--radius-full)',
+                        padding: '2px 8px', borderRadius: 'var(--radius-full)',
                         background: item.isAvailable ? 'var(--success-bg)' : 'var(--error-bg)',
                         color: item.isAvailable ? 'var(--success)' : 'var(--error)',
                       }}>
                         {item.isAvailable ? 'Available' : 'Unavailable'}
                       </span>
-                    </td>
+                    </div>
+                  </div>
+                </div>
 
-                    {/* ACTIONS */}
-                    <td style={{ padding: '14px 16px' }}>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button onClick={() => handleEdit(item)} style={{
-                          padding: '6px 14px', borderRadius: 'var(--radius-sm)',
-                          background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                          fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text)',
-                          cursor: 'pointer', fontWeight: '500',
-                        }}>
-                          ✏️ Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item._id)}
-                          disabled={deleting === item._id}
-                          style={{
-                            padding: '6px 14px', borderRadius: 'var(--radius-sm)',
-                            background: 'var(--error-bg)', border: '1px solid var(--error)',
-                            fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--error)',
-                            cursor: 'pointer', fontWeight: '500',
-                            opacity: deleting === item._id ? 0.7 : 1,
-                          }}
-                        >
-                          {deleting === item._id ? '...' : '🗑️ Delete'}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                {/* BOTTOM — action buttons */}
+                <div style={{
+                  display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
+                  borderTop: '1px solid var(--border)',
+                }}>
+                  <button
+                    onClick={() => handleToggleAvailability(item._id, item.isAvailable)}
+                    style={{
+                      padding: '10px 4px', border: 'none', cursor: 'pointer',
+                      background: item.isAvailable ? 'var(--warning-bg)' : 'var(--success-bg)',
+                      color: item.isAvailable ? 'var(--warning)' : 'var(--success)',
+                      fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 600,
+                      borderRight: '1px solid var(--border)',
+                    }}
+                  >
+                    {item.isAvailable ? '🔴 Unavailable' : '🟢 Available'}
+                  </button>
+                  <button
+                    onClick={() => handleEdit(item)}
+                    style={{
+                      padding: '10px 4px', border: 'none', cursor: 'pointer',
+                      background: 'var(--bg-secondary)', color: 'var(--text)',
+                      fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 600,
+                      borderRight: '1px solid var(--border)',
+                    }}
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item._id)}
+                    disabled={deleting === item._id}
+                    style={{
+                      padding: '10px 4px', border: 'none', cursor: 'pointer',
+                      background: 'var(--error-bg)', color: 'var(--error)',
+                      fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 600,
+                      opacity: deleting === item._id ? 0.7 : 1,
+                    }}
+                  >
+                    {deleting === item._id ? '...' : '🗑️ Delete'}
+                  </button>
+                </div>
+
+              </div>
+            ))}
 
             {filtered.length === 0 && (
-              <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--text-muted)' }}>
-                No items in this category
+              <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--text-muted)' }}>
+                No items found
               </div>
             )}
           </div>
         )}
-      </div>
+        </div>
 
       {/* TOAST */}
       <div className={`toast ${toast ? 'show' : ''}`} style={{ background: 'var(--bg-dark)', bottom: '24px' }}>{toast}</div>

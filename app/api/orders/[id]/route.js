@@ -6,7 +6,7 @@ export async function GET(req, { params }) {
   try {
     await connectDB();
     const { id } = await params;
-    const order = await Order.findById(id);
+    const order = await Order.findById(id).populate('customer', 'name phone email');
     if (!order) {
       return NextResponse.json(
         { error: 'Order not found' },

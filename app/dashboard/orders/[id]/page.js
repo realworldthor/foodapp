@@ -158,9 +158,8 @@ export default function OrderDetailPage() {
             <span className="material-icons" style={{ fontSize: 18, color: 'var(--primary)' }}>person</span>
             Customer
           </p>
-          <p style={{ fontSize: 14, color: 'var(--text)', fontWeight: 600 }}>{order.customer?.name}</p>
-          {order.customer?.phone && <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>📞 {order.customer.phone}</p>}
-          {order.customer?.email && <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2 }}>✉ {order.customer.email}</p>}
+          <p style={{ fontSize: 14, color: 'var(--text)', fontWeight: 600 }}>{order.address?.name || 'Guest'}</p>
+          {order.address?.phone && <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>📞 {order.address.phone}</p>}
         </div>
 
         {/* Payment Info */}

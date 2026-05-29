@@ -270,11 +270,11 @@ async function fetchOrders() {
                     </span>
                   </div>
 
-                  {/* ACTION BUTTONS */}
+                 {/* ACTION BUTTONS */}
                   <div style={{ display: 'flex', gap: '8px' }}>
                     {nextStatus[order.status] && (
                       <button
-                        onClick={() => updateStatus(order._id, nextStatus[order.status])}
+                        onClick={(e) => { e.stopPropagation(); updateStatus(order._id, nextStatus[order.status]); }}
                         disabled={updating === order._id}
                         className="btn-primary"
                         style={{ flex: 1, padding: '10px', fontSize: '13px', borderRadius: 'var(--radius-md)', opacity: updating === order._id ? 0.7 : 1 }}
@@ -284,7 +284,7 @@ async function fetchOrders() {
                     )}
                     {order.status !== 'cancelled' && order.status !== 'delivered' && (
                       <button
-                        onClick={() => updateStatus(order._id, 'cancelled')}
+                        onClick={(e) => { e.stopPropagation(); updateStatus(order._id, 'cancelled'); }}
                         disabled={updating === order._id}
                         style={{
                           padding: '10px 16px', fontSize: '13px', borderRadius: 'var(--radius-md)',
@@ -301,7 +301,7 @@ async function fetchOrders() {
                         {order.status === 'delivered' ? '✅ Order completed' : '❌ Order cancelled'}
                       </div>
                     )}
-                  </div>
+                  </div>              
                 </div>
               </div>
             ))}
